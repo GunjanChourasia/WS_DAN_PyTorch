@@ -3,10 +3,10 @@
 python train_bap.py train\
     --model-name inception \
     --batch-size 12 \
-    --dataset bird \
+    --dataset custom \
     --image-size 512 \
     --input-size 448 \
-    --checkpoint-path checkpoint/bird \
+    --checkpoint-path checkpoint/custom \
     --optim sgd \
     --scheduler step \
     --lr 0.001 \

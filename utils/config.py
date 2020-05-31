@@ -65,13 +65,13 @@ def getConfig():
 
 def getDatasetConfig(dataset_name):
     assert dataset_name in ['bird', 'car',
-                            'aircraft','dog'], 'No dataset named %s!' % dataset_name
+                            'aircraft','dog','custom'], 'No dataset named %s!' % dataset_name
     dataset_dict = {
-        'bird': {'train_root': 'data/Bird/images',  # the root path of the train images stored
-                 'val_root': 'data/Bird/images',  # the root path of the validate images stored
+        'custom': {'train_root': 'nut_snacks/train',  # the root path of the train images stored
+                 'val_root': 'nut_snacks/test',  # the root path of the validate images stored
                                                     # training list file (aranged as filename lable)
-                 'train': 'data/bird_train.txt',
-                 'val': 'data/bird_test.txt'},  # validate list file
+                 'train': 'nut_snacks/train_data.txt',
+                 'val': 'nut_snacks/test_data.txt'},  # validate list file
         'car': {'train_root': 'data/Car/cars_train',
                 'val_root': 'data/Car/cars_test',
                 'train': 'data/car_train.txt',
