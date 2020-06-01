@@ -13,9 +13,9 @@ def getConfig():
     # dataset
     parser.add_argument('--dataset', metavar='DIR',
                         default='bird', help='name of the dataset')
-    parser.add_argument('--image-size', '-i', default=512, type=int,
+    parser.add_argument('--image-size', '-i', default=224, type=int,
                         metavar='N', help='image size (default: 512)')
-    parser.add_argument('--input-size', '-cs', default=448, type=int,
+    parser.add_argument('--input-size', '-cs', default=224, type=int,
                         metavar='N', help='the input size of the model (default: 448)')
     parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                         help='number of data loading workers (default: 4)')
@@ -37,17 +37,17 @@ def getConfig():
                         metavar='N', help='number of parts (default: 32)')
     parser.add_argument('--alpha', default=0.95, type=float,
                         metavar='N', help='weight for BAP loss')
-    parser.add_argument('--model-name', default='inception', type=str,
+    parser.add_argument('--model-name', default='resnet50', type=str,
                         help='model name')
 
     # training config
-    parser.add_argument('--use-gpu', action="store_true", default=True,
+    parser.add_argument('--use-gpu', action="store_true", default=False,
                         help='whether use gpu or not, default True')
-    parser.add_argument('--multi-gpu', action="store_true", default=True,
+    parser.add_argument('--multi-gpu', action="store_true", default=False,
                         help='whether use multiple gpus or not, default True')
     parser.add_argument('--gpu-ids', default='0,1',
                         help='gpu id list(eg: 0,1,2...)')
-    parser.add_argument('--epochs', default=80, type=int, metavar='N',
+    parser.add_argument('--epochs', default=10, type=int, metavar='N',
                         help='number of total epochs to run')
     parser.add_argument('-b', '--batch-size', default=16, type=int,
                         metavar='N', help='mini-batch size (default: 16)')

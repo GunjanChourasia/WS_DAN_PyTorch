@@ -146,61 +146,61 @@ def train():
         prec1, val_loss = engine.validate(state)
         is_best = prec1 > best_prec1
         best_prec1 = max(prec1, best_prec1)
-        save_checkpoint({
-            'epoch': e + 1,
-            'state_dict': net.state_dict(),
-            'best_prec1': best_prec1,
-            'optimizer': optimizer.state_dict(),
-            'center': center_dict['center']
-        }, is_best, config.checkpoint_path)
+        # save_checkpoint({
+        #     'epoch': e + 1,
+        #     'state_dict': net.state_dict(),
+        #     'best_prec1': best_prec1,
+        #     'optimizer': optimizer.state_dict(),
+        #     'center': center_dict['center']
+        # }, is_best, config.checkpoint_path)
         sw.add_scalars("Accurancy", {'train': train_prec, 'val': prec1}, e)
         sw.add_scalars("Loss", {'train': train_loss, 'val': val_loss}, e)
         if config.scheduler == 'plateau':
             scheduler.step(val_loss)
 
-def test():
-    ##
-    engine = Engine()
-    config = getConfig()
-    data_config = getDatasetConfig(config.dataset)
-    # define dataset
-    transform_test = transforms.Compose([
-        transforms.Resize((config.image_size, config.image_size)),
-        transforms.CenterCrop(config.input_size),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-    ])
-    val_dataset = CustomDataset(
-        data_config['val'], data_config['val_root'], transform=transform_test)
-    val_loader = DataLoader(
-        val_dataset, batch_size=config.batch_size, shuffle=False, num_workers=config.workers, pin_memory=True)
-    # define model
-    if config.model_name == 'inception':
-        net = inception_v3_bap(pretrained=True, aux_logits=False)
-    elif config.model_name == 'resnet50':
-        net = resnet50(pretrained=True)
+# def test():
+#     ##
+#     engine = Engine()
+#     config = getConfig()
+#     data_config = getDatasetConfig(config.dataset)
+#     # define dataset
+#     transform_test = transforms.Compose([
+#         transforms.Resize((config.image_size, config.image_size)),
+#         transforms.CenterCrop(config.input_size),
+#         transforms.ToTensor(),
+#         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+#     ])
+#     val_dataset = CustomDataset(
+#         data_config['val'], data_config['val_root'], transform=transform_test)
+#     val_loader = DataLoader(
+#         val_dataset, batch_size=config.batch_size, shuffle=False, num_workers=config.workers, pin_memory=True)
+#     # define model
+#     if config.model_name == 'inception':
+#         net = inception_v3_bap(pretrained=True, aux_logits=False)
+#     elif config.model_name == 'resnet50':
+#         net = resnet50(pretrained=True)
 
-    in_features = net.fc_new.in_features
-    new_linear = torch.nn.Linear(
-        in_features=in_features, out_features=val_dataset.num_classes)
-    net.fc_new = new_linear
+#     in_features = net.fc_new.in_features
+#     new_linear = torch.nn.Linear(
+#         in_features=in_features, out_features=val_dataset.num_classes)
+#     net.fc_new = new_linear
 
-    # load checkpoint
-    use_gpu = torch.cuda.is_available() and config.use_gpu
-    if use_gpu:
-        net = net.cuda()
-    gpu_ids = [int(r) for r in config.gpu_ids.split(',')]
-    if use_gpu and len(gpu_ids) > 1:
-        net = torch.nn.DataParallel(net, device_ids=gpu_ids)
-    #checkpoint_path = os.path.join(config.checkpoint_path,'model_best.pth.tar')
-    net.load_state_dict(torch.load(config.checkpoint_path)['state_dict'])
+#     # load checkpoint
+#     use_gpu = torch.cuda.is_available() and config.use_gpu
+#     if use_gpu:
+#         net = net.cuda()
+#     gpu_ids = [int(r) for r in config.gpu_ids.split(',')]
+#     if use_gpu and len(gpu_ids) > 1:
+#         net = torch.nn.DataParallel(net, device_ids=gpu_ids)
+#     #checkpoint_path = os.path.join(config.checkpoint_path,'model_best.pth.tar')
+#     net.load_state_dict(torch.load(config.checkpoint_path)['state_dict'])
 
-    # define loss
-    # define loss
-    criterion = torch.nn.CrossEntropyLoss()
-    if use_gpu:
-        criterion = criterion.cuda()
-    prec1, prec5 = engine.test(val_loader, net, criterion)
+#     # define loss
+#     # define loss
+#     criterion = torch.nn.CrossEntropyLoss()
+#     if use_gpu:
+#         criterion = criterion.cuda()
+#     prec1, prec5 = engine.test(val_loader, net, criterion)
 
 
 if __name__ == '__main__':

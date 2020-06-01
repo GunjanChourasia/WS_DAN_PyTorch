@@ -27,13 +27,13 @@ class CustomDataset(Dataset):
             line = f.readline()
             # self.datas = f.readlines()
             while line:
-                img_name = line.split()[0]
-                label = int(line.split()[1])
+                img_name = line.split("~")[0]
+                label = int(line.split("~")[1])
                 # label = int(label)
                 self.image_list.append(img_name)
                 self.id_list.append(label)
                 line = f.readline()
-        self.num_classes = max(self.id_list)+1
+        self.num_classes = 258
         
     def __len__(self):
         return len(self.id_list)
