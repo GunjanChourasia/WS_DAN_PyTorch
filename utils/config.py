@@ -41,7 +41,7 @@ def getConfig():
                         help='model name')
 
     # training config
-    parser.add_argument('--use-gpu', action="store_true", default=False,
+    parser.add_argument('--use-gpu', action="store_true", default=True,
                         help='whether use gpu or not, default True')
     parser.add_argument('--multi-gpu', action="store_true", default=False,
                         help='whether use multiple gpus or not, default True')

@@ -38,8 +38,8 @@ class Engine():
             # measure data loading time
             data_time.update(time.time() - end)
 
-            target = label#.cuda()
-            input = img#.cuda()
+            target = label.cuda()
+            input = img.cuda()
             # compute output
             attention_maps, raw_features, output1 = model(input)
             features = raw_features.reshape(raw_features.shape[0], -1)

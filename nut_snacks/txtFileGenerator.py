@@ -10,7 +10,12 @@ for j,file in enumerate(sorted(files)):
     img_list = [x for x in os.listdir("./dataset/"+str(file)) if x.endswith(".jpg")]
     for i, img_name in enumerate(sorted(img_list)):
         txt = str(img_name)+"~"+str(j)
-        if i%4==0:
+        if len(img_list)==1:
+            shutil.copy("./dataset/{}/{}".format(file,img_name),test_dir)
+            test_file.write(txt+"\n")
+            shutil.copy("./dataset/{}/{}".format(file,img_name),train_dir)
+            train_file.write(txt+"\n")
+        elif i%4==0:
             shutil.copy("./dataset/{}/{}".format(file,img_name),test_dir)
             test_file.write(txt+"\n")
         else:
