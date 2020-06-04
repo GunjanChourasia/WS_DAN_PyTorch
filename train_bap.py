@@ -216,10 +216,11 @@ def test():
     
     conf_mat = metrics.confusion_matrix(true_array.cpu().numpy(), pred_array.cpu().numpy())
     print("Prec1 : {}".format(prec1))
-    #print("conf_mat : {}". format(conf_mat))
+    print("conf_mat :\n {}". format(conf_mat))
     #plt.figure()
-    plot_confusion_matrix(conf_mat, [z for z in range(258)])
+    #plot_confusion_matrix(conf_mat, [z for z in range(258)])
     #plt.show()
+    np.savetxt("conf_mat.txt",conf_mat)
     
 
 def plot_confusion_matrix(cm, classes,
