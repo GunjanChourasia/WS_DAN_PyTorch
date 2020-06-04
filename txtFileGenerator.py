@@ -1,8 +1,8 @@
 import os
 import shutil
 files = [x for x in os.listdir("./nut_snacks/dataset")]
-train_file = open("./nut_snacks/train_data.txt","a")
-test_file = open("./nut_snacks/test_data.txt","a")
+train_file = open("./nut_snacks/train_data.txt","w")
+test_file = open("./nut_snacks/test_data.txt","w")
 
 if os.path.isdir(os.path.join(os.getcwd(),"nut_snacks/train")):
     train_dir=os.path.join(os.getcwd(),"nut_snacks/train")
@@ -17,9 +17,9 @@ else:
     test_dir=os.path.join(os.getcwd(),"nut_snacks/test")
 
 print (files)
-for j,file in enumerate(sorted(files)):
+for j,file in enumerate(files):
     img_list = [x for x in os.listdir("./nut_snacks/dataset/"+str(file)) if x.endswith(".jpg")]
-    for i, img_name in enumerate(sorted(img_list)):
+    for i, img_name in enumerate(img_list):
         txt = str(img_name)+"~"+str(j)
         if len(img_list)==1:
             shutil.copy("./nut_snacks/dataset/{}/{}".format(file,img_name),test_dir)
