@@ -154,6 +154,8 @@ class Engine():
         print_freq = 100
         # switch to evaluate mode
         model.eval()
+        prediction_list = torch.tensor([], dtype=torch.long, device=torch.device("cuda:0"))
+        actual_list = torch.tensor([], dtype=torch.long, device=torch.device("cuda:0"))
         with torch.no_grad():
             for i, (input, target) in enumerate(val_loader):
                 target = target.cuda()
@@ -164,9 +166,15 @@ class Engine():
                 _, _, output2 = model(refined_input)
                 output = (F.softmax(output1, dim=-1)+F.softmax(output2, dim=-1))/2
                 # measure accuracy and record loss
+                _, output_test = torch.max(output, 1)
+                #print("Output : {}, Target : {}".format(output_test, target))
+                
                 prec1, prec5 = accuracy(output, target, topk=(1, 5))
                 top1.update(prec1[0], input.size(0))
                 top5.update(prec5[0], input.size(0))
+                
+                prediction_list=torch.cat((prediction_list,output_test.view(-1)),0)
+                actual_list=torch.cat((actual_list,target.view(-1)),0)
 
                 if i % print_freq == 0:
                     print('Test: [{0}/{1}]\t'
@@ -178,7 +186,7 @@ class Engine():
             print(' * Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
                 .format(top1=top1, top5=top5))
 
-        return top1.avg, top5.avg
+        return top1.avg, top5.avg, prediction_list, actual_list
 
 
 if __name__ == '__main__':

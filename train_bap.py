@@ -14,6 +14,8 @@ import time
 import shutil
 import random
 import numpy as np
+from sklearn import metrics
+import matplotlib.pyplot as plt
 
 # my implementation
 from model.inception_bap import inception_v3_bap
@@ -33,6 +35,12 @@ from torch.utils.data import DataLoader
 import torchvision.models as models
 import torch.nn.functional as F
 from tensorboardX import SummaryWriter
+
+# import for showing the confusion matrix
+import itertools
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+import numpy as np
 
 GLOBAL_SEED = 1231
 def _init_fn(worker_id):
@@ -157,51 +165,92 @@ def train():
         sw.add_scalars("Loss", {'train': train_loss, 'val': val_loss}, e)
         if config.scheduler == 'plateau':
             scheduler.step(val_loss)
+    
+    
 
-# def test():
-#     ##
-#     engine = Engine()
-#     config = getConfig()
-#     data_config = getDatasetConfig(config.dataset)
-#     # define dataset
-#     transform_test = transforms.Compose([
-#         transforms.Resize((config.image_size, config.image_size)),
-#         transforms.CenterCrop(config.input_size),
-#         transforms.ToTensor(),
-#         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-#     ])
-#     val_dataset = CustomDataset(
-#         data_config['val'], data_config['val_root'], transform=transform_test)
-#     val_loader = DataLoader(
-#         val_dataset, batch_size=config.batch_size, shuffle=False, num_workers=config.workers, pin_memory=True)
-#     # define model
-#     if config.model_name == 'inception':
-#         net = inception_v3_bap(pretrained=True, aux_logits=False)
-#     elif config.model_name == 'resnet50':
-#         net = resnet50(pretrained=True)
+def test():
+    ##
+    engine = Engine()
+    config = getConfig()
+    data_config = getDatasetConfig(config.dataset)
+    # define dataset
+    print("At test")
+    transform_test = transforms.Compose([
+        transforms.Resize((config.image_size, config.image_size)),
+        transforms.CenterCrop(config.input_size),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    ])
+    val_dataset = CustomDataset(
+        data_config['val'], data_config['val_root'], transform=transform_test)
+    val_loader = DataLoader(
+        val_dataset, batch_size=config.batch_size, shuffle=False, num_workers=config.workers, pin_memory=True)
+    # define model
+    if config.model_name == 'inception':
+        net = inception_v3_bap(pretrained=True, aux_logits=False)
+    elif config.model_name == 'resnet50':
+        net = resnet50(pretrained=True, use_bap=True)
 
-#     in_features = net.fc_new.in_features
-#     new_linear = torch.nn.Linear(
-#         in_features=in_features, out_features=val_dataset.num_classes)
-#     net.fc_new = new_linear
+    in_features = net.fc_new.in_features
+    new_linear = torch.nn.Linear(
+        in_features=in_features, out_features=val_dataset.num_classes)
+    net.fc_new = new_linear
 
-#     # load checkpoint
-#     use_gpu = torch.cuda.is_available() and config.use_gpu
-#     if use_gpu:
-#         net = net.cuda()
-#     gpu_ids = [int(r) for r in config.gpu_ids.split(',')]
-#     if use_gpu and len(gpu_ids) > 1:
-#         net = torch.nn.DataParallel(net, device_ids=gpu_ids)
-#     #checkpoint_path = os.path.join(config.checkpoint_path,'model_best.pth.tar')
-#     net.load_state_dict(torch.load(config.checkpoint_path)['state_dict'])
+    # load checkpoint
+    use_gpu = torch.cuda.is_available() and config.use_gpu
+    if use_gpu:
+        net = net.cuda()
+    gpu_ids = [int(r) for r in config.gpu_ids.split(',')]
+    if use_gpu and False:
+        net = torch.nn.DataParallel(net, device_ids=gpu_ids)
+    #checkpoint_path = os.path.join(config.checkpoint_path,'model_best.pth.tar')
+    net.load_state_dict(torch.load(config.checkpoint_path)['state_dict'])
 
-#     # define loss
-#     # define loss
-#     criterion = torch.nn.CrossEntropyLoss()
-#     if use_gpu:
-#         criterion = criterion.cuda()
-#     prec1, prec5 = engine.test(val_loader, net, criterion)
+    # define loss
+    # define loss
+    criterion = torch.nn.CrossEntropyLoss()
+    if use_gpu:
+        criterion = criterion.cuda()
+    
+    prec1, prec5, pred_array, true_array = engine.test(val_loader, net, criterion)
+    
+    conf_mat = metrics.confusion_matrix(true_array.cpu().numpy(), pred_array.cpu().numpy())
+    print("Prec1 : {}".format(prec1))
+    #print("conf_mat : {}". format(conf_mat))
+    #plt.figure()
+    #plot_confusion_matrix(conf_mat, [z for z in range(258)])
+    #plt.show()
+    
 
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.tight_layout()
 
 if __name__ == '__main__':
     config = getConfig()
