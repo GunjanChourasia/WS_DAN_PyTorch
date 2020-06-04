@@ -214,6 +214,21 @@ def test():
     
     prec1, prec5, pred_array, true_array = engine.test(val_loader, net, criterion)
     
+#     t_a = true_array.cpu().numpy()
+#     p_a = pred_array.cpu().numpy()
+
+#     import pickle
+#     pickle_in = open("file.pkl","rb")
+#     pickle_dict = pickle.load(pickle_in)
+#     #pickle_dict = dict(zip(pickle_dict, map(int, pickle_dict.keys())))
+#     # print(type(pickle_dict.keys()),type(pickle_dict.values()[0]))
+#     pickle_dict = dict(map(lambda x: (int(x[0]), x[1]), pickle_dict.items()))
+#     print(list(set(list(pickle_dict.values()))))
+#     print(len(list(set(list(pickle_dict.values())))))
+
+#     true_array = np.vectorize(pickle_dict.get)(t_a)
+#     pred_array = np.vectorize(pickle_dict.get)(p_a)
+    
     conf_mat = metrics.confusion_matrix(true_array.cpu().numpy(), pred_array.cpu().numpy())
     print("Prec1 : {}".format(prec1))
     print("conf_mat :\n {}". format(conf_mat))
