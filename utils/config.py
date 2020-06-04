@@ -21,7 +21,7 @@ def getConfig():
                         help='number of data loading workers (default: 4)')
 
     # optimizer config
-    parser.add_argument('--optim', default='sgd', type=str,
+    parser.add_argument('--optim', default='adam', type=str,
                         help='the name of optimizer(adam,sgd)')
     parser.add_argument('--scheduler', default='plateau', type=str,
                         help='the name of scheduler(step,plateau)')

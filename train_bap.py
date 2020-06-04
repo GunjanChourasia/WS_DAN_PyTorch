@@ -154,13 +154,13 @@ def train():
         prec1, val_loss = engine.validate(state)
         is_best = prec1 > best_prec1
         best_prec1 = max(prec1, best_prec1)
-        # save_checkpoint({
-        #     'epoch': e + 1,
-        #     'state_dict': net.state_dict(),
-        #     'best_prec1': best_prec1,
-        #     'optimizer': optimizer.state_dict(),
-        #     'center': center_dict['center']
-        # }, is_best, config.checkpoint_path)
+        save_checkpoint({
+            'epoch': e + 1,
+            'state_dict': net.state_dict(),
+            'best_prec1': best_prec1,
+            'optimizer': optimizer.state_dict(),
+            'center': center_dict['center']
+        }, is_best, config.checkpoint_path)
         sw.add_scalars("Accurancy", {'train': train_prec, 'val': prec1}, e)
         sw.add_scalars("Loss", {'train': train_loss, 'val': val_loss}, e)
         if config.scheduler == 'plateau':
@@ -218,7 +218,7 @@ def test():
     print("Prec1 : {}".format(prec1))
     #print("conf_mat : {}". format(conf_mat))
     #plt.figure()
-    #plot_confusion_matrix(conf_mat, [z for z in range(258)])
+    plot_confusion_matrix(conf_mat, [z for z in range(258)])
     #plt.show()
     
 
@@ -251,6 +251,7 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.tight_layout()
+    plt.show()
 
 if __name__ == '__main__':
     config = getConfig()
